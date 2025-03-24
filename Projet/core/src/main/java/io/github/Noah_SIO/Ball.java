@@ -35,6 +35,18 @@ public class Ball {
         return y;
     }
 
+    public void setX(int newx){
+        x=newx;
+    }
+
+    public void setY(int newy){
+        y=newy;
+    }
+
+    public float getSize(){
+        return size;
+    }
+
     public void draw(ShapeRenderer shape){
         shape.circle(x,y,size);
     }
