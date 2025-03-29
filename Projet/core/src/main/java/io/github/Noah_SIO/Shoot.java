@@ -3,6 +3,7 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.ScreenUtils;
@@ -12,6 +13,8 @@ public class Shoot {
     private float y;
     private float largeur;
     private float hauteur;
+    Texture shootImg;
+    Sprite shoot;
 
 
     public Shoot(float x, float y, float largeur, float hauteur){
@@ -19,6 +22,10 @@ public class Shoot {
         this.y=y;
         this.hauteur=hauteur;
         this.largeur=largeur;
+        shootImg = new Texture("shoot.png");
+        shoot = new Sprite(shootImg);
+        shoot.setSize(largeur * 4, hauteur * 4);
+        shoot.setPosition(x, y);
     }
 
 
@@ -26,6 +33,7 @@ public class Shoot {
     public void move(float x, float y){
         this.x += x;
         this.y += y;
+        shoot.setPosition(this.x, this.y);
     }
 
     public float getX(){
@@ -36,8 +44,11 @@ public class Shoot {
         return y;
     }
 
-    public void draw(ShapeRenderer shape){
-        // Dessiner un rectangle (x, y, largeur, hauteur)
-        shape.rect(x,y,largeur,hauteur);
+    public void draw(SpriteBatch batch){
+        shoot.draw(batch);
+    }
+
+    public Sprite returnSprite(){
+        return shoot;
     }
 }

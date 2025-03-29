@@ -13,38 +13,61 @@ import java.util.List;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Rectangle;
+
+
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class Main extends ApplicationAdapter {
-    private ShapeRenderer shape;
-    private Texture imageFond;
-    private float scrollY;
-    private SpriteBatch batch;
-
     //batch image et sprite, shape pour les formes carré,triangle...
-
-    Ball ball;
+    Player player;
     Shoot shoot;
     Monster monster;
     List<Shoot> listeShoot = new ArrayList<>();
     List<Monster> listeMonster = new ArrayList<>();
     float randomValue;
-    int avance = 5;
+    int fly = 5;
+
+    //taille écran
+    int width = 800;
+    int height = 600;
+
+
+    /////Texture///////
+    private ShapeRenderer shape;
+    private Texture imageFond;
+    private float scrollY;
+    private SpriteBatch batch;
+
+
+
+    ////Collisions/////
+    Rectangle boxPlayer;
+    Rectangle boxMonster;
+    Rectangle boxShoot;
+
+
+
+
+
 
     @Override
     public void create() {
         shape = new ShapeRenderer();
         batch = new SpriteBatch();
-        ball = new Ball(450/2, 60, 30);
+        player = new Player(width/2, 60, 30);
         
 
 
         imageFond = new Texture("background.png"); //DragonGaiden\Projet\lwjgl3\build\resources\main
         imageFond.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat); //repetition du fond
-
         scrollY = 0; // Position initiale du défilement
 
 
+
+        
         Timer.schedule(new Timer.Task(){
             @Override
             public void run() {
@@ -69,29 +92,29 @@ public class Main extends ApplicationAdapter {
         shape.begin(ShapeRenderer.ShapeType.Filled);
 
         //collision côté décor
-        if(ball.getX() >= 450){ //gauche
-            ball.move(-speed, 0); 
+        if(player.getX() >= width-(player.getSize()*2)){ //gauche
+            player.move(-speed, 0); 
          }
-         if(ball.getX() <= 0){ //droite
-             ball.move(speed, 0);
+         if(player.getX() <= 0){ //droite
+             player.move(speed, 0);
          }
-         if(ball.getY() >= 450){ //haut
-             ball.move(0, -speed);
+         if(player.getY() >= height-(player.getSize()*2)){ //haut
+             player.move(0, -speed);
          }
-         if(ball.getY() <= 0){ //bas
-             ball.move(0,speed);
+         if(player.getY() <= 0){ //bas
+             player.move(0,speed);
          }
 
 
-        //collision monstre et décor 
-        if(listeMonster.size() >0){ 
-        if(listeMonster.get(0).getX() <= 0){
-            avance = 5;
-        }
-        if(listeMonster.get(0).getX() >= 430){
-            avance = -5;
-        }
-        }
+        // //collision monstre et décor 
+        // if(listeMonster.size() >0){ 
+        // if(listeMonster.get(0).getX() <= 0){
+        //     avance = 5;
+        // }
+        // if(listeMonster.get(0).getX() >= 430){
+        //     avance = -5;
+        // }
+        // }
 
 
 
@@ -104,7 +127,7 @@ public class Main extends ApplicationAdapter {
         }
 
         if(Gdx.input.isKeyPressed(Input.Keys.SPACE)){ //ESPACE
-            shoot = new Shoot(ball.getX()-10, ball.getY()+40, 20, 40);
+            shoot = new Shoot(player.getX()-32, player.getY()+20, 30, 40);
             if(listeShoot.size() < 1){ //tir
             listeShoot.add(shoot);
             }
@@ -113,16 +136,16 @@ public class Main extends ApplicationAdapter {
 
         //mouvement
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) { //Q //A
-            ball.move(-speed, 0); //gauche
+            player.move(-speed, 0); //gauche
         }
         if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) { // D
-            ball.move(speed, 0);// Déplacement à droite
+            player.move(speed, 0);// Déplacement à droite
         }
         if (Gdx.input.isKeyPressed(Input.Keys.UP)) { // Z //W
-            ball.move(0, speed); // Déplacement vers le haut
+            player.move(0, speed); // Déplacement vers le haut
         }
         if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) { //S
-            ball.move(0, -speed); // Déplacement vers le bas
+            player.move(0, -speed); // Déplacement vers le bas
         }
         
         
@@ -135,55 +158,86 @@ public class Main extends ApplicationAdapter {
             scrollY = 0; // Réinitialiser pour éviter les dépassements
         }
         batch.begin();
-        batch.draw(imageFond, 0, 0, 0, (int) scrollY, 450, 450);
+        batch.draw(imageFond, 0, 0, 0, (int) scrollY, width, height);
         // Gdx.graphics.getWidth(), Gdx.graphics.getHeight() : taille
         ////////////////////////////////
         
 
         //joueur draw
-        ball.draw(shape);
+        player.draw(batch);
         
 
 
-        //affichage shoot
+        // //affichage shoot
         if(listeShoot.size() >0){
-        listeShoot.get(0).draw(shape);
-        listeShoot.get(0).move(0, 13);
-        if(listeShoot.get(0).getY() > 450){
+        listeShoot.get(0).draw(batch);
+        listeShoot.get(0).move(0, 8);
+        if(listeShoot.get(0).getY() > height){
         listeShoot.remove(0);  
         }
         System.err.println(listeShoot.size());
         }
-        ///////////////
+        // ///////////////
 
 
-        //affichage monstre
+        // //affichage monstre
         if(listeMonster.size() >0){
             for(int i=0;i<listeMonster.size();i++){
-            listeMonster.get(i).draw(shape);
-
-            listeMonster.get(i).move(avance,0);
-
-
-            //collision joueur et monstre
-            if (isCollisionCircles(ball.getX(), ball.getY(), ball.getSize(), 
-            listeMonster.get(i).getX(), listeMonster.get(i).getY(), listeMonster.get(i).getSize())) {
-                System.out.println("ok");
-                ball.setX(450/2);
-                ball.setY(60);
-                listeMonster.remove(i);
-            }
+            listeMonster.get(i).draw(batch);
             
-            //collision monstre et tir
-            if(listeShoot.size() >0){
-            if(isCircleCollidingWithRectangle(listeMonster.get(i).getX(),listeMonster.get(i).getY(),
-            listeMonster.get(i).getSize(),listeShoot.get(0).getX(),listeShoot.get(0).getY(),20,40)){
+
+            /////Mouvement/////
+            if(listeMonster.get(i).getType()==1){
+                switch (listeMonster.get(i).getStep()){
+                    case 0:
+                    listeMonster.get(i).nextStep();
+                    case 1:
+                    listeMonster.get(i).move(0,-fly); 
+                    listeMonster.get(i).nextStep();
+                    break;
+                    case 2: 
+                    listeMonster.get(i).move(fly,0);
+                    listeMonster.get(i).resetStep();
+                    break; 
+                }
+                //listeMonster.get(i).move(0,-fly); 
+                //listeMonster.get(i).move(fly,0); //fly = 5 ou -5
+            }else{
+            listeMonster.get(i).move(fly,0);
+            }
+
+
+            boxPlayer = player.returnSprite().getBoundingRectangle();    
+            boxMonster = listeMonster.get(i).returnSprite().getBoundingRectangle();
+            
+            
+            
+            //collisions bas monster
+            if(listeMonster.get(i).getY() < -100){
                 listeMonster.remove(i);
             }
+
+            //collisions joueur monster
+            if(boxPlayer.overlaps(boxMonster)){
+                System.out.println("touch monster");
+                player.setPosition(width/2,60);
+                player.setX(width/2);
+                player.setY(60);
+                listeMonster.remove(i);
+            }    
+
+            //collisions shoot monster
+            if(listeShoot.size()>0){
+                boxShoot = listeShoot.get(0).returnSprite().getBoundingRectangle();
+                if(boxShoot.overlaps(boxMonster)){
+                    listeMonster.remove(i);
+                    listeShoot.remove(0); 
+                }
             }
+
             }
         }
-        ///////////
+       
 
 
         batch.end();
@@ -192,41 +246,9 @@ public class Main extends ApplicationAdapter {
 
     //function monster
     public void newMonster(){ 
-        monster = new Monster(randomValue,333,40,1);
+        monster = new Monster(40,height-100,40,1);
         listeMonster.add(monster);
     }
-
-
-
-
-
-
-
-    ///Function calcul complexe de collision
-
-    public boolean isCollisionCircles(float x1, float y1, float radius1, float x2, float y2, float radius2) {
-    // Calculez la distance entre les centres des cercles
-    float distance = Vector2.dst(x1, y1, x2, y2);
-
-    // Vérifiez si la distance est inférieure à la somme des rayons
-    return distance < (radius1 + radius2);
-    }
-
-
-    public static boolean isCircleCollidingWithRectangle(
-    float circleX, float circleY, float radius,
-    float rectX, float rectY, float rectWidth, float rectHeight) {
-
-    float closestX = Math.max(rectX, Math.min(circleX, rectX + rectWidth));
-    float closestY = Math.max(rectY, Math.min(circleY, rectY + rectHeight));
-
-    float distanceX = circleX - closestX;
-    float distanceY = circleY - closestY;
-
-    return (distanceX * distanceX + distanceY * distanceY) <= (radius * radius);
-    }
-
-
 
 
 }
