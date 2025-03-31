@@ -28,7 +28,7 @@ public class Main extends ApplicationAdapter {
     List<Shoot> listeShoot = new ArrayList<>();
     List<Monster> listeMonster = new ArrayList<>();
     float randomValue;
-    int fly = 5;
+    int fly = 80;
 
     //taille écran
     int width = 800;
@@ -48,6 +48,16 @@ public class Main extends ApplicationAdapter {
     Rectangle boxMonster;
     Rectangle boxShoot;
 
+
+    ///////Test//////
+    private long lastUpdateTime = System.currentTimeMillis();
+    private long delay = 500; // Délai en millisecondes entre chaque étape
+
+
+    ////PlayerVar////
+    int healt = 3;
+    int score = 0;
+    int kill = 0;
 
 
 
@@ -187,24 +197,32 @@ public class Main extends ApplicationAdapter {
             
 
             /////Mouvement/////
-            if(listeMonster.get(i).getType()==1){
-                switch (listeMonster.get(i).getStep()){
-                    case 0:
-                    listeMonster.get(i).nextStep();
-                    case 1:
-                    listeMonster.get(i).move(0,-fly); 
-                    listeMonster.get(i).nextStep();
-                    break;
-                    case 2: 
+            long currentTime = System.currentTimeMillis();
+            if (currentTime - lastUpdateTime >= delay) {
+                // Mettre à jour le monstre en fonction de son étape
+                if (listeMonster.get(i).getType() == 1) {
+                    switch (listeMonster.get(i).getStep()) {
+                        case 0:
+                            listeMonster.get(i).nextStep();
+                            break;
+                        case 1:
+                            listeMonster.get(i).move(0, -fly); // Déplace vers le bas
+                            listeMonster.get(i).nextStep();
+                            break;
+                        case 2:
+                            listeMonster.get(i).move(fly, 0); // Déplace sur le côté
+                            listeMonster.get(i).resetStep();
+                            break;
+                    }
+                }else{
                     listeMonster.get(i).move(fly,0);
-                    listeMonster.get(i).resetStep();
-                    break; 
-                }
+                    }
+        
+                // Réinitialiser le temps pour le prochain cycle
+                lastUpdateTime = currentTime;
                 //listeMonster.get(i).move(0,-fly); 
                 //listeMonster.get(i).move(fly,0); //fly = 5 ou -5
-            }else{
-            listeMonster.get(i).move(fly,0);
-            }
+                }
 
 
             boxPlayer = player.returnSprite().getBoundingRectangle();    
@@ -224,6 +242,7 @@ public class Main extends ApplicationAdapter {
                 player.setX(width/2);
                 player.setY(60);
                 listeMonster.remove(i);
+                healt = healt - 1;
             }    
 
             //collisions shoot monster
@@ -231,7 +250,9 @@ public class Main extends ApplicationAdapter {
                 boxShoot = listeShoot.get(0).returnSprite().getBoundingRectangle();
                 if(boxShoot.overlaps(boxMonster)){
                     listeMonster.remove(i);
-                    listeShoot.remove(0); 
+                    listeShoot.remove(0);
+                    kill = kill + 1;
+                    score = score + 100;
                 }
             }
 
