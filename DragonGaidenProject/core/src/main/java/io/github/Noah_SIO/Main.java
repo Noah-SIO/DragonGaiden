@@ -58,6 +58,7 @@ public class Main extends ApplicationAdapter {
     int healt = 3;
     int score = 0;
     int kill = 0;
+    int shootSpeed = 13;
 
 
 
@@ -181,7 +182,7 @@ public class Main extends ApplicationAdapter {
         // //affichage shoot
         if(listeShoot.size() >0){
         listeShoot.get(0).draw(batch);
-        listeShoot.get(0).move(0, 8);
+        listeShoot.get(0).move(0, shootSpeed);
         if(listeShoot.get(0).getY() > height){
         listeShoot.remove(0);  
         }
