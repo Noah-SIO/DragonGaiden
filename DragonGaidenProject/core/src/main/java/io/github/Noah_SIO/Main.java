@@ -28,7 +28,7 @@ public class Main extends ApplicationAdapter {
     List<Shoot> listeShoot = new ArrayList<>();
     List<Monster> listeMonster = new ArrayList<>();
     float randomValue;
-    int fly = 80;
+    int fly = 5;
 
     //taille écran
     int width = 800;
@@ -50,8 +50,7 @@ public class Main extends ApplicationAdapter {
 
 
     ///////Test//////
-    private long lastUpdateTime = System.currentTimeMillis();
-    private long delay = 500; // Délai en millisecondes entre chaque étape
+    
 
 
     ////PlayerVar////
@@ -82,9 +81,19 @@ public class Main extends ApplicationAdapter {
         Timer.schedule(new Timer.Task(){
             @Override
             public void run() {
-                // Votre action à exécuter ici
+                // modifier probleme type monster
+                int typemonster = 1;
+                int xmonster = 40;
                 randomValue = MathUtils.random(60, 400);;
-                newMonster();
+                if(typemonster == 1){
+                    typemonster=2;
+                    xmonster=150;
+                    newMonster(typemonster,xmonster);
+                }else{
+                    typemonster=1;
+                    xmonster=40;
+                    newMonster(typemonster,xmonster);
+                }
                 System.out.println("New Monster !");
             }
         }, 3, 5);
@@ -117,19 +126,7 @@ public class Main extends ApplicationAdapter {
          }
 
 
-        // //collision monstre et décor 
-        // if(listeMonster.size() >0){ 
-        // if(listeMonster.get(0).getX() <= 0){
-        //     avance = 5;
-        // }
-        // if(listeMonster.get(0).getX() >= 430){
-        //     avance = -5;
-        // }
-        // }
-
-
-
-
+    
         //action
         if (Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)) { //Shift
             speed=speed/2; // ralentir vitesse
@@ -195,12 +192,9 @@ public class Main extends ApplicationAdapter {
         if(listeMonster.size() >0){
             for(int i=0;i<listeMonster.size();i++){
             listeMonster.get(i).draw(batch);
-            
+            //System.out.println(listeMonster.get(i).getY());
 
             /////Mouvement/////
-            long currentTime = System.currentTimeMillis();
-            if (currentTime - lastUpdateTime >= delay) {
-                // Mettre à jour le monstre en fonction de son étape
                 if (listeMonster.get(i).getType() == 1) {
                     switch (listeMonster.get(i).getStep()) {
                         case 0:
@@ -208,22 +202,64 @@ public class Main extends ApplicationAdapter {
                             break;
                         case 1:
                             listeMonster.get(i).move(0, -fly); // Déplace vers le bas
+                            if(listeMonster.get(i).getY()==400 || listeMonster.get(i).getY()==200){
                             listeMonster.get(i).nextStep();
+                            }
                             break;
                         case 2:
                             listeMonster.get(i).move(fly, 0); // Déplace sur le côté
+                            if(listeMonster.get(i).getY()>=400 && listeMonster.get(i).getY()<=120){
+                                listeMonster.get(i).move(fly, 0); 
+                            }
+                            if(listeMonster.get(i).getX()==250){
                             listeMonster.get(i).resetStep();
+                            }
                             break;
                     }
-                }else{
-                    listeMonster.get(i).move(fly,0);
+                } 
+
+                if(listeMonster.get(i).getType() == 2){
+                    switch (listeMonster.get(i).getStep()) {
+                    case 0:
+                        listeMonster.get(i).nextStep();
+                        break;
+                    case 1:
+                        listeMonster.get(i).move(0, -fly); // Déplace vers le bas
+                        System.out.println('1');
+                        if(listeMonster.get(i).getY()==400){
+                        listeMonster.get(i).nextStep();
+                        }
+                        break;
+                    case 2:
+                        listeMonster.get(i).move(fly, 0); //gauche
+                        System.out.println('2');
+                        if(listeMonster.get(i).getX()==400){
+                            listeMonster.get(i).nextStep();
+                        }
+                        break;
+                    case 3:
+                        listeMonster.get(i).move(0, -fly); //descend
+                        System.out.println('3');
+                        if(listeMonster.get(i).getY()==200){
+                            listeMonster.get(i).nextStep();
+                        }
+                        break;
+                    case 4:
+                        listeMonster.get(i).move(-fly, 0); //droite
+                        System.out.println('4');
+                        System.out.println(listeMonster.get(i).getX());
+                        if(listeMonster.get(i).getX()==150){
+                            listeMonster.get(i).nextStep();
+                        }
+                        break;
+                    case 5:
+                        listeMonster.get(i).move(0, -fly);
+                        break;
                     }
+                }
         
-                // Réinitialiser le temps pour le prochain cycle
-                lastUpdateTime = currentTime;
                 //listeMonster.get(i).move(0,-fly); 
                 //listeMonster.get(i).move(fly,0); //fly = 5 ou -5
-                }
 
 
             boxPlayer = player.returnSprite().getBoundingRectangle();    
@@ -232,8 +268,9 @@ public class Main extends ApplicationAdapter {
             
             
             //collisions bas monster
-            if(listeMonster.get(i).getY() < -100){
+            if(listeMonster.get(i).getY() < -50 || listeMonster.get(i).getX() > 900){
                 listeMonster.remove(i);
+                System.out.println("monster remove");
             }
 
             //collisions joueur monster
@@ -267,8 +304,8 @@ public class Main extends ApplicationAdapter {
     }
 
     //function monster
-    public void newMonster(){ 
-        monster = new Monster(40,height-100,40,1);
+    public void newMonster(int type, int x){ 
+        monster = new Monster(x,height-100,40,type);
         listeMonster.add(monster);
     }
 
