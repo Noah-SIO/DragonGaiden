@@ -26,9 +26,11 @@ public class Main extends ApplicationAdapter {
     //batch image et sprite, shape pour les formes carré,triangle...
     Player player;
     Shoot shoot;
+    Shoot shootMonster;
     Monster monster;
     List<Shoot> listeShoot = new ArrayList<>();
     List<Monster> listeMonster = new ArrayList<>();
+    List<Shoot> listeShootMonster = new ArrayList<>();
     float randomValue;
     int fly = 5;
 
@@ -49,17 +51,20 @@ public class Main extends ApplicationAdapter {
     Rectangle boxPlayer;
     Rectangle boxMonster;
     Rectangle boxShoot;
+    Rectangle boxShootMonster;
 
 
     ///////Test//////
     private BitmapFont font;
-
+    int typemonster = 1;
+    int xmonster = 40;
 
     ////PlayerVar////
     int health = 3;
     int score = 0;
     int kill = 0;
     int shootSpeed = 13;
+    int shootSpeedMonster = 8;
     Texture healthplayer;
 
 
@@ -86,21 +91,36 @@ public class Main extends ApplicationAdapter {
             @Override
             public void run() {
                 // modifier probleme type monster
-                int typemonster = 1;
-                int xmonster = 40;
                 randomValue = MathUtils.random(60, 400);;
                 if(typemonster == 1){
                     typemonster=2;
                     xmonster=150;
-                    newMonster(typemonster,xmonster);
                 }else{
                     typemonster=1;
                     xmonster=40;
-                    newMonster(typemonster,xmonster);
                 }
+                newMonster(typemonster,xmonster);
                 System.out.println("New Monster !");
             }
         }, 3, 5);
+
+
+        Timer.schedule(new Timer.Task() {
+            @Override
+                public void run() {
+                if(listeMonster.size()>0){
+                    for(int j =0; j<listeMonster.size(); j++){
+                        shootMonster = new Shoot(listeMonster.get(j).getX()+20, listeMonster.get(j).getY(), 30, 40, 2);
+                        if(listeShootMonster.size()==0){
+                        listeShootMonster.add(shootMonster);  
+                        System.out.println("add");
+                        }
+                        }
+                    }
+                }
+            }, 2, 1);
+
+
     }
 
 
@@ -139,7 +159,7 @@ public class Main extends ApplicationAdapter {
         }
 
         if(Gdx.input.isKeyPressed(Input.Keys.SPACE)){ //ESPACE
-            shoot = new Shoot(player.getX()-32, player.getY()+20, 30, 40);
+            shoot = new Shoot(player.getX()-32, player.getY()+20, 30, 40,1);
             if(listeShoot.size() < 1){ //tir
             listeShoot.add(shoot);
             }
@@ -180,15 +200,25 @@ public class Main extends ApplicationAdapter {
         
 
 
-        // //affichage shoot
+        ////affichage shoot player
         if(listeShoot.size() >0){
         listeShoot.get(0).draw(batch);
         listeShoot.get(0).move(0, shootSpeed);
         if(listeShoot.get(0).getY() > height){
         listeShoot.remove(0);  
         }
-        System.err.println(listeShoot.size());
+        //System.err.println(listeShoot.size());
         }
+
+        ////affichage shoot monster
+        if(listeShootMonster.size() > 0){
+            listeShootMonster.get(0).draw(batch);
+            listeShootMonster.get(0).move(0, -shootSpeedMonster);
+            if(listeShootMonster.get(0).getY()< -50){
+            listeShootMonster.remove(0);  
+            }
+            //System.err.println(listeShoot.size());
+            }
         // ///////////////
 
 
@@ -229,29 +259,29 @@ public class Main extends ApplicationAdapter {
                         break;
                     case 1:
                         listeMonster.get(i).move(0, -fly); // Déplace vers le bas
-                        System.out.println('1');
+                        ///System.out.println('1');
                         if(listeMonster.get(i).getY()==400){
                         listeMonster.get(i).nextStep();
                         }
                         break;
                     case 2:
                         listeMonster.get(i).move(fly, 0); //gauche
-                        System.out.println('2');
+                        //System.out.println('2');
                         if(listeMonster.get(i).getX()==400){
                             listeMonster.get(i).nextStep();
                         }
                         break;
                     case 3:
                         listeMonster.get(i).move(0, -fly); //descend
-                        System.out.println('3');
+                        //System.out.println('3');
                         if(listeMonster.get(i).getY()==200){
                             listeMonster.get(i).nextStep();
                         }
                         break;
                     case 4:
                         listeMonster.get(i).move(-fly, 0); //droite
-                        System.out.println('4');
-                        System.out.println(listeMonster.get(i).getX());
+                        //System.out.println('4');
+                        //System.out.println(listeMonster.get(i).getX());
                         if(listeMonster.get(i).getX()==150){
                             listeMonster.get(i).nextStep();
                         }
@@ -266,7 +296,6 @@ public class Main extends ApplicationAdapter {
                 //listeMonster.get(i).move(fly,0); //fly = 5 ou -5
 
             ////////////////////////////////////////////////////////////
-
 
 
             boxPlayer = player.returnSprite().getBoundingRectangle();    
@@ -300,10 +329,25 @@ public class Main extends ApplicationAdapter {
                     score = score + 100;
                 }
             }
+            //collision shoot player
+            if(listeShootMonster.size()>0){
+                boxShootMonster = listeShootMonster.get(0).returnSprite().getBoundingRectangle();
+                if(boxShootMonster.overlaps(boxPlayer)){
+                    listeShootMonster.remove(0);
+                    player.setPosition(width/2,60);
+                    player.setX(width/2);
+                    player.setY(60);
+                    health = health -1;
+                }
+            }
 
             }
         }
         
+
+        
+
+
         
         ///Affichage var joueur/////
         var scoreString = String.valueOf(score); //score
