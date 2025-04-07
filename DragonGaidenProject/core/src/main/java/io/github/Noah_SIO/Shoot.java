@@ -16,13 +16,16 @@ public class Shoot {
     Texture shootImg;
     Sprite shoot;
 
-
-    public Shoot(float x, float y, float largeur, float hauteur){
+    public Shoot(float x, float y, float largeur, float hauteur, int type){
         this.x=x;
         this.y=y;
         this.hauteur=hauteur;
         this.largeur=largeur;
+        if(type==1){
         shootImg = new Texture("shoot.png");
+        }if(type==2){
+        shootImg = new Texture("shootmonster.png");
+        }
         shoot = new Sprite(shootImg);
         shoot.setSize(largeur * 4, hauteur * 4);
         shoot.setPosition(x, y);
