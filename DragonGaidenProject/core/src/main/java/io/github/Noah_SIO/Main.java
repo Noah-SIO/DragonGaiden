@@ -2,6 +2,7 @@ package io.github.Noah_SIO;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -13,6 +14,7 @@ import java.util.List;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
@@ -50,15 +52,15 @@ public class Main extends ApplicationAdapter {
 
 
     ///////Test//////
-    
+    private BitmapFont font;
 
 
     ////PlayerVar////
-    int healt = 3;
+    int health = 3;
     int score = 0;
     int kill = 0;
     int shootSpeed = 13;
-
+    Texture healthplayer;
 
 
 
@@ -68,13 +70,15 @@ public class Main extends ApplicationAdapter {
         shape = new ShapeRenderer();
         batch = new SpriteBatch();
         player = new Player(width/2, 60, 30);
-        
+        font = new BitmapFont();
+        font.getData().setScale(2.0f);
 
 
         imageFond = new Texture("background.png"); //DragonGaiden\Projet\lwjgl3\build\resources\main
         imageFond.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat); //repetition du fond
         scrollY = 0; // Position initiale du défilement
 
+        healthplayer = new Texture(Gdx.files.internal("health.png"));
 
 
         
@@ -261,6 +265,9 @@ public class Main extends ApplicationAdapter {
                 //listeMonster.get(i).move(0,-fly); 
                 //listeMonster.get(i).move(fly,0); //fly = 5 ou -5
 
+            ////////////////////////////////////////////////////////////
+
+
 
             boxPlayer = player.returnSprite().getBoundingRectangle();    
             boxMonster = listeMonster.get(i).returnSprite().getBoundingRectangle();
@@ -280,7 +287,7 @@ public class Main extends ApplicationAdapter {
                 player.setX(width/2);
                 player.setY(60);
                 listeMonster.remove(i);
-                healt = healt - 1;
+                health = health - 1;
             }    
 
             //collisions shoot monster
@@ -296,9 +303,24 @@ public class Main extends ApplicationAdapter {
 
             }
         }
-       
+        
+        
+        ///Affichage var joueur/////
+        var scoreString = String.valueOf(score); //score
+        font.setColor(Color.WHITE);
+        font.draw(batch, scoreString, width/10, height-50);
+        
+        var x = width-300; ////affichage vie
+        var y=height-100;
+        if(health > 0){
+        for(int i=0; i<health; i++){
+            batch.draw(healthplayer, x, y, 100, 75);
+            x+=75;
+        }
+        }
 
-
+        /////////
+        
         batch.end();
         shape.end();
     }
