@@ -17,6 +17,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
@@ -82,8 +83,11 @@ public class Main extends ApplicationAdapter {
 
 
     ///////test menu/////
-    int gameStart = 1; // Variable pour contrôler l'état du jeu
-
+    int gameStart = 0; // Variable pour contrôler l'état du jeu
+    private Stage menuStage;
+    private Skin skin;
+    private TextButton startButton;
+    private TextButton exitButton;
 
     @Override
     public void create() {
@@ -102,7 +106,7 @@ public class Main extends ApplicationAdapter {
         healthplayer = new Texture(Gdx.files.internal("health.png"));
 
 
-        
+       if(gameStart == 0){ 
         Timer.schedule(new Timer.Task(){
             @Override
             public void run() {
@@ -129,18 +133,82 @@ public class Main extends ApplicationAdapter {
                 if(listeMonster.size()>0){
                     for(int j =0; j<listeMonster.size(); j++){
                         shootMonster = new Shoot(listeMonster.get(j).getX()-30, listeMonster.get(j).getY(), 30, 40, 2);
-                        if(listeShootMonster.size()==0){
+                        //if(listeShootMonster.size()0){
                         listeShootMonster.add(shootMonster);  
                         System.out.println("add");
-                        }
+                        //}
                         }
                     }
                 }
             }, 2, 1);
+        }
+
+
+        /////// Menu test ///////
+
+        // Chargement du skin
+        skin = new Skin(Gdx.files.internal("skins/arcade/arcade-ui.json"));
+        // Thème bouton
+        TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
+        textButtonStyle.up = skin.getDrawable("button-blue");
+        textButtonStyle.down = skin.getDrawable("button-pressed-blue");
+        textButtonStyle.font = skin.getFont("font");
+        skin.add("blue", textButtonStyle);
+        // Création du stage du menu
+        menuStage = new Stage(new ScreenViewport());
+        Gdx.input.setInputProcessor(menuStage);
+        
+
+        ////////background menu//////////
+        Texture bgTexture = new Texture(Gdx.files.internal("skins/arcade/background.jpg"));
+        Image background = new Image(bgTexture);
+        background.setSize(width, height);
+        /////////////////////////////
+
+
+        ////////Button////////////
+        // Création des boutons
+        startButton = new TextButton("Start Game", skin, "blue");
+        exitButton = new TextButton("Exit", skin, "blue");
+
+        // Taille des boutons
+        startButton.setSize(200, 60);
+        exitButton.setSize(200, 60);
+
+        // Position des boutons
+        startButton.setPosition(width / 2f - 100, height / 2f - 80);
+        exitButton.setPosition(width / 2f - 100, height / 2f - 150);
+        ///////////////////////////////    
 
 
 
-        ///////menu test///////
+
+
+        ///// Action Listener /////
+        startButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                gameStart = 1;
+                Gdx.input.setInputProcessor(null); // désactive les inputs du menu
+            }
+        });
+
+        exitButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                Gdx.app.exit();
+            }
+        });
+
+        /////////////////////////
+        
+
+
+        // Ajout des boutons à la scène ////ordre à prendre en compte pour affichage 
+        menuStage.addActor(background);
+        menuStage.addActor(startButton);
+        menuStage.addActor(exitButton);
+        
     }
 
 
@@ -153,20 +221,18 @@ public class Main extends ApplicationAdapter {
         int test = 0;
         
 
-        shape.begin(ShapeRenderer.ShapeType.Filled);
+        //shape.begin(ShapeRenderer.ShapeType.Filled);
         
 
         ///////Menu de jeux///////
-        
+        if (gameStart == 0) {
+            ScreenUtils.clear(0, 0, 0, 1);
+            menuStage.act(Gdx.graphics.getDeltaTime());
+            menuStage.draw();
+            return;
+        } else{
 
-    
-
-
-
-
-
-
-
+        ///////////////////////////////////////////
 
         //collision côté décor
         if(player.getX() >= width-(player.getSize()*2)){ //gauche
@@ -196,6 +262,23 @@ public class Main extends ApplicationAdapter {
             if(listeShoot.size() < 1){ //tir
             listeShoot.add(shoot);
             }
+        }
+
+        if(Gdx.input.isKeyPressed(Input.Keys.ESCAPE)){
+            gameStart=0;
+            Gdx.input.setInputProcessor(menuStage);
+        }
+
+        if(Gdx.input.isKeyJustPressed(Input.Keys.X)){
+            health+=1;
+            System.out.println(health);
+        }
+
+
+        if(health == 0){
+            gameStart=0;
+            health=3;
+            Gdx.input.setInputProcessor(menuStage);
         }
 
 
@@ -246,10 +329,12 @@ public class Main extends ApplicationAdapter {
 
         ////affichage shoot monster
         if(listeShootMonster.size() > 0){
-            listeShootMonster.get(0).draw(batch);
-            listeShootMonster.get(0).move(-shootSpeedMonster, 0);
-            if(listeShootMonster.get(0).getX()< 0){
-            listeShootMonster.remove(0);  
+            for(int k=0; k<listeShootMonster.size();k++){
+            listeShootMonster.get(k).draw(batch);
+            listeShootMonster.get(k).move(-shootSpeedMonster, 0);
+            if(listeShootMonster.get(k).getX()< 0){
+            listeShootMonster.remove(k);  
+            }
             }
             //System.err.println(listeShoot.size());
             }
@@ -376,7 +461,8 @@ public class Main extends ApplicationAdapter {
         /////////
         
         batch.end();
-        shape.end();
+        //shape.end();
+    }
     }
 
 
