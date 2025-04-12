@@ -106,44 +106,6 @@ public class Main extends ApplicationAdapter {
         healthplayer = new Texture(Gdx.files.internal("health.png"));
 
 
-       if(gameStart == 0){ 
-        Timer.schedule(new Timer.Task(){
-            @Override
-            public void run() {
-                // modifier probleme type monster
-                randomValue = MathUtils.random(60, 400);;
-                if(typemonster == 1){
-                    typemonster=2;
-                    xmonster=width+100;
-                    ymonster = height-300;
-                }else{
-                    typemonster=1;
-                    xmonster=width+100;
-                    ymonster = height-500;
-                }
-                newMonster(typemonster,xmonster,ymonster);
-                System.out.println("New Monster !");
-            }
-        }, 3, 3);
-
-
-        Timer.schedule(new Timer.Task() {
-            @Override
-                public void run() {
-                if(listeMonster.size()>0){
-                    for(int j =0; j<listeMonster.size(); j++){
-                        shootMonster = new Shoot(listeMonster.get(j).getX()-30, listeMonster.get(j).getY(), 30, 40, 2);
-                        //if(listeShootMonster.size()0){
-                        listeShootMonster.add(shootMonster);  
-                        System.out.println("add");
-                        //}
-                        }
-                    }
-                }
-            }, 2, 1);
-        }
-
-
         /////// Menu test ///////
 
         // Chargement du skin
@@ -232,7 +194,56 @@ public class Main extends ApplicationAdapter {
             return;
         } else{
 
+            //////Timer///////////////
+            if(gameStart == 1){ 
+                gameStart = 2;
+                Timer.schedule(new Timer.Task(){
+                    @Override
+                    public void run() {
+                        // modifier probleme type monster
+                        randomValue = MathUtils.random(60, 400);;
+                        if(typemonster == 1){
+                            typemonster=2;
+                            xmonster=width+100;
+                            ymonster = height-300;
+                        }else{
+                            typemonster=1;
+                            xmonster=width+100;
+                            ymonster = height-500;
+                        }
+                        newMonster(typemonster,xmonster,ymonster);
+                        System.out.println("New Monster !");
+                    }
+                }, 3, 3);
+        
+        
+                Timer.schedule(new Timer.Task() {
+                    @Override
+                        public void run() {
+                        if(listeMonster.size()>0){
+                            for(int j =0; j<listeMonster.size(); j++){
+                                shootMonster = new Shoot(listeMonster.get(j).getX()-30, listeMonster.get(j).getY(), 30, 40, 2);
+                                //if(listeShootMonster.size()0){
+                                listeShootMonster.add(shootMonster);  
+                                System.out.println("add");
+                                //}
+                                }
+                            }
+                        }
+                    }, 2, 1);
+                }
+
+
+
         ///////////////////////////////////////////
+
+        /////Update la sprite
+        if(listeMonster.size()>0){
+            for(int i =0;i<listeMonster.size();i++){
+                listeMonster.get(i).update();
+            }
+        }        
+
 
         //collision côté décor
         if(player.getX() >= width-(player.getSize()*2)){ //gauche
