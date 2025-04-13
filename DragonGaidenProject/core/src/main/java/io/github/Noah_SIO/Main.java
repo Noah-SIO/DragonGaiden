@@ -505,6 +505,7 @@ public class Main extends ApplicationAdapter {
         listeMonster.add(monster);
     }
 
+    ////arrêt timer/////////////////
     public void stopGameLogic() {
         if (monsterTask != null) {
             monsterTask.cancel();
