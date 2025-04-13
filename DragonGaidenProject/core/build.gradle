@@ -11,6 +11,6 @@ dependencies {
     implementation "io.github.berstanio:gdx-svmhelper-annotations:$graalHelperVersion"
   }
 
-   implementation files("build/libs/sqlite-jdbc-3.49.1.0.jar")
+   implementation files("libs/sqlite-jdbc-3.49.1.0.jar")
    
  }
