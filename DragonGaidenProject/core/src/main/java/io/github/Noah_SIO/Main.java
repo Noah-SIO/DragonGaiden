@@ -286,9 +286,9 @@ public class Main extends ApplicationAdapter {
 
         if(Gdx.input.isKeyPressed(Input.Keys.ESCAPE)){
             gameStart=0;
-            score = 0;
             stopGameLogic();
             managerSQLite.insererScore(pseudo, score, dateAujourdhui.toString());
+            score = 0;
             Gdx.input.setInputProcessor(menuStage);
         }
 
@@ -300,9 +300,9 @@ public class Main extends ApplicationAdapter {
 
         if(health == 0){
             gameStart=0;
-            score = 0;
             stopGameLogic();
             managerSQLite.insererScore(pseudo, score, dateAujourdhui.toString());
+            score = 0;
             Gdx.input.setInputProcessor(menuStage);
         }
 
