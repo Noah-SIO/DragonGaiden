@@ -21,7 +21,7 @@ public class SQLiteManager {
             System.out.println("Driver SQLite non trouvé : " + e.getMessage());
         }
         
-        // Créer la base de données et la table si nécessaire
+        /////////////////si base non présente recréé/////////////
         try (Connection conn = DriverManager.getConnection(URL)) {
             if (conn != null) {
                 String sqlCreateTable = "CREATE TABLE IF NOT EXISTS scores ("

@@ -27,6 +27,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
+import java.time.LocalDate;
 
 
 
@@ -64,11 +65,14 @@ public class Main extends ApplicationAdapter {
     Rectangle boxShootMonster;
 
 
-    ///////Test//////
+    ///////Monster//////
     private BitmapFont font;
+    private BitmapFont fontScore;
     int typemonster = 1;
     int xmonster = 40;
     int ymonster = height-300;
+    Timer.Task monsterTask;
+    Timer.Task shooTask;
 
     ////PlayerVar////
     int health = 3;
@@ -77,6 +81,9 @@ public class Main extends ApplicationAdapter {
     int shootSpeed = 13;
     int shootSpeedMonster = 8;
     Texture healthplayer;
+    SQLiteManager managerSQLite = new SQLiteManager();
+    String pseudo = "playerTest";
+    LocalDate dateAujourdhui = LocalDate.now();
 
 
 
@@ -96,7 +103,8 @@ public class Main extends ApplicationAdapter {
         player = new Player(60, height/2, 30);
         font = new BitmapFont();
         font.getData().setScale(2.0f);
-
+        fontScore = new BitmapFont(); // Police par défaut de LibGDX
+        fontScore.getData().setScale(1.5f);
 
         imageFond = new Texture("cityparis.png"); //DragonGaiden\Projet\lwjgl3\build\resources\main
         imageFond.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat); //repetition du fond
@@ -150,6 +158,7 @@ public class Main extends ApplicationAdapter {
         startButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                health=3;
                 gameStart = 1;
                 Gdx.input.setInputProcessor(null); // désactive les inputs du menu
             }
@@ -197,7 +206,7 @@ public class Main extends ApplicationAdapter {
             //////Timer///////////////
             if(gameStart == 1){ 
                 gameStart = 2;
-                Timer.schedule(new Timer.Task(){
+                monsterTask = Timer.schedule(new Timer.Task(){
                     @Override
                     public void run() {
                         // modifier probleme type monster
@@ -217,7 +226,7 @@ public class Main extends ApplicationAdapter {
                 }, 3, 3);
         
         
-                Timer.schedule(new Timer.Task() {
+                shooTask = Timer.schedule(new Timer.Task() {
                     @Override
                         public void run() {
                         if(listeMonster.size()>0){
@@ -277,6 +286,9 @@ public class Main extends ApplicationAdapter {
 
         if(Gdx.input.isKeyPressed(Input.Keys.ESCAPE)){
             gameStart=0;
+            score = 0;
+            stopGameLogic();
+            managerSQLite.insererScore(pseudo, score, dateAujourdhui.toString());
             Gdx.input.setInputProcessor(menuStage);
         }
 
@@ -288,7 +300,9 @@ public class Main extends ApplicationAdapter {
 
         if(health == 0){
             gameStart=0;
-            health=3;
+            score = 0;
+            stopGameLogic();
+            managerSQLite.insererScore(pseudo, score, dateAujourdhui.toString());
             Gdx.input.setInputProcessor(menuStage);
         }
 
@@ -469,6 +483,14 @@ public class Main extends ApplicationAdapter {
         }
         }
 
+        ArrayList<String[]> topScores = managerSQLite.recupererTopScores();
+
+        // Afficher les scores à l'écran
+        for (int i = 0; i < topScores.size(); i++) {
+            String[] scoreEntry = topScores.get(i);
+            String text = scoreEntry[0] + " - " + scoreEntry[1] + " - " + scoreEntry[2];
+            fontScore.draw(batch, text, 10, 125 - 30 * (i + 1)); // Position en bas à gauche
+        }
         /////////
         
         batch.end();
@@ -481,6 +503,18 @@ public class Main extends ApplicationAdapter {
     public void newMonster(int type, int x, int y){ 
         monster = new Monster(x,y,40,type);
         listeMonster.add(monster);
+    }
+
+    public void stopGameLogic() {
+        if (monsterTask != null) {
+            monsterTask.cancel();
+            System.out.println("Monster task stopped.");
+        }
+        if (shooTask != null) {
+            shooTask.cancel();
+            System.out.println("Shoot task stopped.");
+        }
+        gameStart = 0; // Mettre à jour l'état de jeu
     }
 
 
