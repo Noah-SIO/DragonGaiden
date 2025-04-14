@@ -95,7 +95,7 @@ public class Main extends ApplicationAdapter {
     SQLiteManager managerSQLite = new SQLiteManager();
     String pseudo = "playerTest";
     LocalDate dateAujourdhui = LocalDate.now();
-    float speed=10;
+
 
 
 
@@ -219,6 +219,7 @@ public class Main extends ApplicationAdapter {
     public void render() {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         //x+=5;
+        float speed=10;
         int test = 0;
         
 
