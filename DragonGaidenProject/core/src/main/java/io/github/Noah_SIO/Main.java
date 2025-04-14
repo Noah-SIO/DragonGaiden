@@ -21,6 +21,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField.TextFieldStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -55,7 +57,7 @@ public class Main extends ApplicationAdapter {
     private float scrollY;
     private float scrollX;
     private SpriteBatch batch;
-
+    private TextField playerNameField;
 
 
     ////Collisions/////
@@ -74,12 +76,21 @@ public class Main extends ApplicationAdapter {
     Timer.Task monsterTask;
     Timer.Task shooTask;
 
+    //////PowerUp/////////
+    int xpowerup;
+    int ypowerup;
+    List<PowerUp> listePowerUp = new ArrayList<>();
+    float randomSpawn;
+    float randomType;
+    Rectangle boxPowerUp;
+
     ////PlayerVar////
     int health = 3;
     int score = 0;
     int kill = 0;
     int shootSpeed = 13;
     int shootSpeedMonster = 8;
+    String playerName = "playerTest";
     Texture healthplayer;
     SQLiteManager managerSQLite = new SQLiteManager();
     String pseudo = "playerTest";
@@ -130,7 +141,7 @@ public class Main extends ApplicationAdapter {
         
 
         ////////background menu//////////
-        Texture bgTexture = new Texture(Gdx.files.internal("skins/arcade/background.jpg"));
+        Texture bgTexture = new Texture(Gdx.files.internal("skins/arcade/background2.jpg"));
         Image background = new Image(bgTexture);
         background.setSize(width, height);
         /////////////////////////////
@@ -151,6 +162,23 @@ public class Main extends ApplicationAdapter {
         ///////////////////////////////    
 
 
+        ////////Champ de text//////////////
+        
+        BitmapFont font = new BitmapFont(); // Police par défaut de LibGDX
+        font.getData().setScale(3f);
+        TextFieldStyle textFieldStyle = new TextFieldStyle();
+        textFieldStyle.font = font;
+
+        // Définir des couleurs (optionnel)
+        textFieldStyle.fontColor = com.badlogic.gdx.graphics.Color.BLACK; // Cyan clair
+
+
+
+        playerNameField = new TextField("", textFieldStyle);
+        playerNameField.setMessageText("Enter your name"); // Texte indicatif
+        playerNameField.setPosition(width / 2 - 140, height / 2f - 200);
+        playerNameField.setSize(400, 40);
+
 
 
 
@@ -160,6 +188,8 @@ public class Main extends ApplicationAdapter {
             public void clicked(InputEvent event, float x, float y) {
                 health=3;
                 gameStart = 1;
+                playerName = playerNameField.getText();
+                System.out.println(playerName);
                 Gdx.input.setInputProcessor(null); // désactive les inputs du menu
             }
         });
@@ -177,6 +207,7 @@ public class Main extends ApplicationAdapter {
 
         // Ajout des boutons à la scène ////ordre à prendre en compte pour affichage 
         menuStage.addActor(background);
+        menuStage.addActor(playerNameField);
         menuStage.addActor(startButton);
         menuStage.addActor(exitButton);
         
@@ -210,7 +241,7 @@ public class Main extends ApplicationAdapter {
                     @Override
                     public void run() {
                         // modifier probleme type monster
-                        randomValue = MathUtils.random(60, 400);;
+                        randomValue = MathUtils.random(60, 400);
                         if(typemonster == 1){
                             typemonster=2;
                             xmonster=width+100;
@@ -287,8 +318,14 @@ public class Main extends ApplicationAdapter {
         if(Gdx.input.isKeyPressed(Input.Keys.ESCAPE)){
             gameStart=0;
             stopGameLogic();
-            managerSQLite.insererScore(pseudo, score, dateAujourdhui.toString());
+            managerSQLite.insererScore(playerName, score, dateAujourdhui.toString());
             score = 0;
+            speed = 10;
+            shootSpeed = 13;
+            listeMonster.clear();
+            listePowerUp.clear();
+            listeShootMonster.clear();
+            listeShoot.clear();
             Gdx.input.setInputProcessor(menuStage);
         }
 
@@ -301,8 +338,14 @@ public class Main extends ApplicationAdapter {
         if(health == 0){
             gameStart=0;
             stopGameLogic();
-            managerSQLite.insererScore(pseudo, score, dateAujourdhui.toString());
+            managerSQLite.insererScore(playerName, score, dateAujourdhui.toString());
             score = 0;
+            speed = 10;
+            shootSpeed = 13;
+            listeMonster.clear();
+            listePowerUp.clear();
+            listeShootMonster.clear();
+            listeShoot.clear();
             Gdx.input.setInputProcessor(menuStage);
         }
 
@@ -336,6 +379,15 @@ public class Main extends ApplicationAdapter {
         ////////////////////////////////
         
 
+
+        //////affichage PowerUp//////////
+        if(listePowerUp.size()>0){
+            for(int i=0; i<listePowerUp.size(); i++){
+                listePowerUp.get(i).draw(batch);
+            }
+        }
+        //////////////////////////////////
+
         //joueur draw
         player.draw(batch);
         
@@ -365,7 +417,7 @@ public class Main extends ApplicationAdapter {
             }
         // ///////////////
 
-
+        
         // //affichage monstre
         if(listeMonster.size() >0){
             for(int i=0;i<listeMonster.size();i++){
@@ -447,6 +499,16 @@ public class Main extends ApplicationAdapter {
                     listeShoot.remove(0);
                     kill = kill + 1;
                     score = score + 100;
+
+
+                    randomSpawn = MathUtils.random(1, 3);
+                    if(randomSpawn == 3){
+                        randomType = MathUtils.random(1, 3);
+                        xpowerup = MathUtils.random(50, width-100);
+                        ypowerup = MathUtils.random(50, height-100);
+                        PowerUp powerup = new PowerUp(xpowerup, ypowerup, 20, 20, (int) randomType);
+                        listePowerUp.add(powerup);
+                    }
                 }
             }
             //collision shoot player
@@ -461,14 +523,37 @@ public class Main extends ApplicationAdapter {
                 }
             }
 
+
+            if(listePowerUp.size()>0){
+                for(int j=0; j<listePowerUp.size(); j++){
+                    boxPowerUp = listePowerUp.get(j).returnSprite().getBoundingRectangle();
+                    if(boxPowerUp.overlaps(boxPlayer)){
+                        int typetest = listePowerUp.get(j).getType();
+                        if(typetest == 1){
+                            shootSpeed += 1;
+                            speed += 1;
+                        }if(typetest == 2){
+                            score += 50;
+                        }if(typetest == 3){
+                            health += 1;
+                        }
+                        listePowerUp.remove(j);
+                    }
+                }
+            }
+
             }
         }
         
 
-        
+        if(health > 8){
+            health = 8;
+        }if(speed > 15){
+            speed = 15;
+        }if(shootSpeed > 18){
+            shootSpeed =18;
+        }
 
-
-        
         ///Affichage var joueur/////
         var scoreString = String.valueOf(score); //score
         font.setColor(Color.WHITE);
@@ -478,8 +563,15 @@ public class Main extends ApplicationAdapter {
         var y=height-100;
         if(health > 0){
         for(int i=0; i<health; i++){
+            if(i > 3){
+                y = height-175;
+            }
             batch.draw(healthplayer, x, y, 100, 75);
+            if(i==3){
+                x = width-300;
+            }else{
             x+=75;
+            }
         }
         }
 
