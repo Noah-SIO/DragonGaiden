@@ -511,11 +511,11 @@ public class Main extends ApplicationAdapter {
             //collisions joueur monster
             if(boxPlayer.overlaps(boxMonster)){
                 System.out.println("touch monster");
-                player.setPosition(60,height/2);
-                player.setX(width/2);
-                player.setY(60);
-                listeMonster.remove(i);
-                health = health - 1;
+                listeShootMonster.remove(0);
+                    player.setPosition(60,height/2);
+                    player.setX(60);
+                    player.setY(height/2);
+                    health = health -1;
                 deadSound.play(3f);
             }    
 
