@@ -30,7 +30,8 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import java.time.LocalDate;
-
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
@@ -96,7 +97,16 @@ public class Main extends ApplicationAdapter {
     String pseudo = "playerTest";
     LocalDate dateAujourdhui = LocalDate.now();
 
-
+    //////Music///////////
+    //////Music/Sound//////////
+    Music music;
+    Sound shootSound;
+    Sound deadSound;
+    Sound bonusSound;
+    Sound shootMonsterSound;
+    Sound bonusSpawnSound;
+    Sound gameoverSound;
+    /////////////////////
 
 
 
@@ -124,6 +134,15 @@ public class Main extends ApplicationAdapter {
 
         healthplayer = new Texture(Gdx.files.internal("health.png"));
 
+        //////Music/Sound//////////
+        music = Gdx.audio.newMusic(Gdx.files.internal("music.mp3"));
+        shootSound = Gdx.audio.newSound(Gdx.files.internal("shoot.wav"));
+        deadSound = Gdx.audio.newSound(Gdx.files.internal("dead.wav"));
+        bonusSound = Gdx.audio.newSound(Gdx.files.internal("bonus.wav"));
+        shootMonsterSound = Gdx.audio.newSound(Gdx.files.internal("shootmonster.wav"));
+        bonusSpawnSound = Gdx.audio.newSound(Gdx.files.internal("bonusappear.wav"));
+        gameoverSound = Gdx.audio.newSound(Gdx.files.internal("gameover.mp3"));
+        /////////////////////
 
         /////// Menu test ///////
 
@@ -190,6 +209,8 @@ public class Main extends ApplicationAdapter {
                 gameStart = 1;
                 playerName = playerNameField.getText();
                 System.out.println(playerName);
+                music.setLooping(true);
+                music.play();
                 Gdx.input.setInputProcessor(null); // désactive les inputs du menu
             }
         });
@@ -264,7 +285,8 @@ public class Main extends ApplicationAdapter {
                             for(int j =0; j<listeMonster.size(); j++){
                                 shootMonster = new Shoot(listeMonster.get(j).getX()-30, listeMonster.get(j).getY(), 30, 40, 2);
                                 //if(listeShootMonster.size()0){
-                                listeShootMonster.add(shootMonster);  
+                                listeShootMonster.add(shootMonster);
+                                shootMonsterSound.play(3f);  
                                 System.out.println("add");
                                 //}
                                 }
@@ -312,6 +334,7 @@ public class Main extends ApplicationAdapter {
             shoot = new Shoot(player.getX()+32, player.getY()-30, 30, 40,1);
             if(listeShoot.size() < 1){ //tir
             listeShoot.add(shoot);
+            shootSound.play(3f);
             }
         }
 
@@ -326,6 +349,8 @@ public class Main extends ApplicationAdapter {
             listePowerUp.clear();
             listeShootMonster.clear();
             listeShoot.clear();
+            music.stop();
+            gameoverSound.play(3f);
             Gdx.input.setInputProcessor(menuStage);
         }
 
@@ -346,6 +371,8 @@ public class Main extends ApplicationAdapter {
             listePowerUp.clear();
             listeShootMonster.clear();
             listeShoot.clear();
+            music.stop();
+            gameoverSound.play(3f);
             Gdx.input.setInputProcessor(menuStage);
         }
 
@@ -489,6 +516,7 @@ public class Main extends ApplicationAdapter {
                 player.setY(60);
                 listeMonster.remove(i);
                 health = health - 1;
+                deadSound.play(3f);
             }    
 
             //collisions shoot monster
@@ -508,6 +536,7 @@ public class Main extends ApplicationAdapter {
                         ypowerup = MathUtils.random(50, height-100);
                         PowerUp powerup = new PowerUp(xpowerup, ypowerup, 20, 20, (int) randomType);
                         listePowerUp.add(powerup);
+                        bonusSpawnSound.play(3f);
                     }
                 }
             }
@@ -520,10 +549,11 @@ public class Main extends ApplicationAdapter {
                     player.setX(60);
                     player.setY(height/2);
                     health = health -1;
+                    deadSound.play(3f);
                 }
             }
 
-
+            ////collision powerUp
             if(listePowerUp.size()>0){
                 for(int j=0; j<listePowerUp.size(); j++){
                     boxPowerUp = listePowerUp.get(j).returnSprite().getBoundingRectangle();
@@ -538,6 +568,7 @@ public class Main extends ApplicationAdapter {
                             health += 1;
                         }
                         listePowerUp.remove(j);
+                        bonusSound.play(3f);
                     }
                 }
             }
