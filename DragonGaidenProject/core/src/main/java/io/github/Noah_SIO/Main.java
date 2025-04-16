@@ -90,7 +90,7 @@ public class Main extends ApplicationAdapter {
     int score = 0;
     int kill = 0;
     int shootSpeed = 13;
-    int shootSpeedMonster = 8;
+    int shootSpeedMonster = 10;
     String playerName = "playerTest";
     Texture healthplayer;
     SQLiteManager managerSQLite = new SQLiteManager();
@@ -207,9 +207,14 @@ public class Main extends ApplicationAdapter {
             public void clicked(InputEvent event, float x, float y) {
                 health=3;
                 gameStart = 1;
-                playerName = playerNameField.getText();
+                playerName = playerNameField.getText().trim();
+                if(playerName.isEmpty()){
+                    playerName="Anonyme";
+                }else{
                 System.out.println(playerName);
+                }
                 music.setLooping(true);
+                music.setVolume(0.2f);
                 music.play();
                 Gdx.input.setInputProcessor(null); // désactive les inputs du menu
             }
@@ -275,7 +280,7 @@ public class Main extends ApplicationAdapter {
                         newMonster(typemonster,xmonster,ymonster);
                         System.out.println("New Monster !");
                     }
-                }, 3, 3);
+                }, 3, 1.5);
         
         
                 shooTask = Timer.schedule(new Timer.Task() {
@@ -286,7 +291,7 @@ public class Main extends ApplicationAdapter {
                                 shootMonster = new Shoot(listeMonster.get(j).getX()-30, listeMonster.get(j).getY(), 30, 40, 2);
                                 //if(listeShootMonster.size()0){
                                 listeShootMonster.add(shootMonster);
-                                shootMonsterSound.play(3f);  
+                                shootMonsterSound.play(0.2f);  
                                 System.out.println("add");
                                 //}
                                 }
@@ -334,7 +339,7 @@ public class Main extends ApplicationAdapter {
             shoot = new Shoot(player.getX()+32, player.getY()-30, 30, 40,1);
             if(listeShoot.size() < 1){ //tir
             listeShoot.add(shoot);
-            shootSound.play(3f);
+            shootSound.play(0.2f);
             }
         }
 
@@ -350,7 +355,7 @@ public class Main extends ApplicationAdapter {
             listeShootMonster.clear();
             listeShoot.clear();
             music.stop();
-            gameoverSound.play(3f);
+            gameoverSound.play(0.2f);
             Gdx.input.setInputProcessor(menuStage);
         }
 
@@ -372,7 +377,7 @@ public class Main extends ApplicationAdapter {
             listeShootMonster.clear();
             listeShoot.clear();
             music.stop();
-            gameoverSound.play(3f);
+            gameoverSound.play(0.2f);
             Gdx.input.setInputProcessor(menuStage);
         }
 
@@ -511,12 +516,12 @@ public class Main extends ApplicationAdapter {
             //collisions joueur monster
             if(boxPlayer.overlaps(boxMonster)){
                 System.out.println("touch monster");
-                listeShootMonster.remove(0);
+                    listeMonster.remove(i);
                     player.setPosition(60,height/2);
                     player.setX(60);
                     player.setY(height/2);
                     health = health -1;
-                deadSound.play(3f);
+                deadSound.play(0.2f);
             }    
 
             //collisions shoot monster
@@ -536,7 +541,7 @@ public class Main extends ApplicationAdapter {
                         ypowerup = MathUtils.random(50, height-100);
                         PowerUp powerup = new PowerUp(xpowerup, ypowerup, 20, 20, (int) randomType);
                         listePowerUp.add(powerup);
-                        bonusSpawnSound.play(3f);
+                        bonusSpawnSound.play(0.2f);
                     }
                 }
             }
@@ -549,7 +554,7 @@ public class Main extends ApplicationAdapter {
                     player.setX(60);
                     player.setY(height/2);
                     health = health -1;
-                    deadSound.play(3f);
+                    deadSound.play(0.2f);
                 }
             }
 
@@ -568,7 +573,7 @@ public class Main extends ApplicationAdapter {
                             health += 1;
                         }
                         listePowerUp.remove(j);
-                        bonusSound.play(3f);
+                        bonusSound.play(0.2f);
                     }
                 }
             }
