@@ -280,7 +280,7 @@ public class Main extends ApplicationAdapter {
                         newMonster(typemonster,xmonster,ymonster);
                         System.out.println("New Monster !");
                     }
-                }, 3, 1.5);
+                }, 3, 2);
         
         
                 shooTask = Timer.schedule(new Timer.Task() {
